@@ -146,21 +146,17 @@ def test(epoch, testing_lst):
         best_acc = acc
 
 # save training and testing error for each epoch
-training_error = np.zeros(start_epoch+164)
-testing_error = np.zeros(start_epoch+164)
+target_epoch = 10
+training_error = np.zeros(start_epoch+target_epoch)
+testing_error = np.zeros(start_epoch+target_epoch)
 
 scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[81, 122], gamma=0.1)
-# train 164 epochs as assignment's requirement
-for epoch in range(start_epoch, start_epoch+164): 
+
+# data saver
+import csv
+writer = csv.writer(open("./output/resnet20.csv", 'w'))
+# train 164 epochs as assignment's requirement    
+for epoch in range(start_epoch, start_epoch+target_epoch): 
     train(epoch, training_error)
     test(epoch, testing_error)
-
-import matplotlib.pyplot as plt
-idx = np.array(range(start_epoch + 164))
-fig = plt.figure()
-
-fig.plot(idx, training_error, "b", idx, testing_error, "r")
-fig.set(xlabel='epoch 1 - 164', ylabel='Error rate %',
-       title='ResNet20')
-fig.savefig("out.png")
-fig.legend()
+    writer.writerow(training_error[epoch], testing_error[epoch])
