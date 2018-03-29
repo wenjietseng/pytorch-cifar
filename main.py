@@ -84,7 +84,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
 
 # Training
-def train(epoch, training_lst):
+def train(epoch, writer):
     print('\nEpoch: %d' % epoch)
     net.train()
     train_loss = 0
@@ -107,9 +107,9 @@ def train(epoch, training_lst):
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-    training_lst[epoch] = 1 - correct
+        writer.writerow([train_loss/(batch_idx+1),100.*correct/total])
 
-def test(epoch, testing_lst):
+def test(epoch, writer):
     global best_acc
     net.eval()
     test_loss = 0
@@ -129,7 +129,7 @@ def test(epoch, testing_lst):
 
         progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
-        testing_lst[epoch] = 1 - correct
+        writer.writerow([test_loss/(batch_idx+1),100.*correct/total])
 
     # Save checkpoint.
     acc = 100.*correct/total
@@ -147,16 +147,14 @@ def test(epoch, testing_lst):
 
 # save training and testing error for each epoch
 target_epoch = 10
-training_error = np.zeros(start_epoch+target_epoch)
-testing_error = np.zeros(start_epoch+target_epoch)
 
 scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[81, 122], gamma=0.1)
 
 # data saver
 import csv
-writer = csv.writer(open("./output/resnet20.csv", 'w'))
+train_writer = csv.writer(open("./output/resnet20_train.csv", 'w'))
+test_writer = csv.writer(open("./output/resnet20_test.csv", 'w'))
 # train 164 epochs as assignment's requirement    
 for epoch in range(start_epoch, start_epoch+target_epoch): 
-    train(epoch, training_error)
-    test(epoch, testing_error)
-    writer.writerow(training_error[epoch], testing_error[epoch])
+    train(epoch, train_writer)
+    test(epoch, test_writer)
