@@ -17,6 +17,8 @@ from models.resnet import ResNet18
 from utils import progress_bar
 from torch.autograd import Variable
 
+import numpy as np
+
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -30,6 +32,7 @@ start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 # Data
 print('==> Preparing data..')
 transform_train = transforms.Compose([
+    transforms.Pad(4, fill=0),
     transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
@@ -81,7 +84,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
 
 # Training
-def train(epoch):
+def train(epoch, training_lst):
     print('\nEpoch: %d' % epoch)
     net.train()
     train_loss = 0
@@ -104,8 +107,9 @@ def train(epoch):
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+    training_lst[epoch] = 1 - correct
 
-def test(epoch):
+def test(epoch, testing_lst):
     global best_acc
     net.eval()
     test_loss = 0
@@ -125,6 +129,7 @@ def test(epoch):
 
         progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
+        testing_lst[epoch] = 1 - correct
 
     # Save checkpoint.
     acc = 100.*correct/total
@@ -140,7 +145,22 @@ def test(epoch):
         torch.save(state, './checkpoint/ckpt.t7')
         best_acc = acc
 
+# save training and testing error for each epoch
+training_error = np.zeros(start_epoch+164)
+testing_error = np.zeros(start_epoch+164)
+
+scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[81, 122], gamma=0.1)
 # train 164 epochs as assignment's requirement
 for epoch in range(start_epoch, start_epoch+164): 
-    train(epoch)
-    test(epoch)
+    train(epoch, training_error)
+    test(epoch, testing_error)
+
+import matplotlib.pyplot as plt
+idx = np.array(range(start_epoch + 164))
+fig = plt.figure()
+
+fig.plot(idx, training_error, "b", idx, testing_error, "r")
+fig.set(xlabel='epoch 1 - 164', ylabel='Error rate %',
+       title='ResNet20')
+fig.savefig("out.png")
+fig.legend()
