@@ -13,7 +13,10 @@ import torchvision.transforms as transforms
 import os
 import argparse
 
+from models.resnet import ResNet20
 from models.resnet import ResNet56
+from models.resnet import ResNe110
+
 from utils import progress_bar
 from torch.autograd import Variable
 
@@ -26,6 +29,8 @@ parser.add_argument('--resume', '-r', action='store_true', help='resume from che
 # add train and test file name
 parser.add_argument('--train', default="training_out", help='training loss and accuracy csv file')
 parser.add_argument('--test', default="testing_out", help='testing loss and accuracy csv file')
+# choose layer 20, 56, or 110
+parser.add_argument('--layer', default="20", help="select layers of ResNet")
 args = parser.parse_args()
 
 use_cuda = torch.cuda.is_available()
@@ -67,7 +72,7 @@ if args.resume:
 else:
     print('==> Building model..')
     # net = VGG('VGG19')
-    net = ResNet56()
+    # net = ResNet18()
     # net = PreActResNet18()
     # net = GoogLeNet()
     # net = DenseNet121()
@@ -77,6 +82,14 @@ else:
     # net = DPN92()
     # net = ShuffleNetG2()
     # net = SENet18()
+    if args.layer == '20':
+        net = ResNet20()
+    elif args.layer == '56':
+        net = ResNet56()
+    elif args.layer == '110':
+        net = ResNe110()
+    else:
+        exit("Check layers args again")
 
 if use_cuda:
     net.cuda()
@@ -111,7 +124,7 @@ def train(epoch, writer):
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
         if batch_idx == 390:
-            writer.writerow([train_loss/(batch_idx+1),100.*correct/total])
+            writer.writerow([epoch, train_loss/(batch_idx+1),100.*correct/total])
 
 def test(epoch, writer):
     global best_acc
@@ -134,7 +147,7 @@ def test(epoch, writer):
         progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
         if batch_idx == 99:
-            writer.writerow([test_loss/(batch_idx+1),100.*correct/total])
+            writer.writerow([epoch, test_loss/(batch_idx+1),100.*correct/total])
 
     # Save checkpoint.
     acc = 100.*correct/total
