@@ -13,7 +13,7 @@ import torchvision.transforms as transforms
 import os
 import argparse
 
-from models.resnet import ResNet20
+from models.resnet import ResNet56
 from utils import progress_bar
 from torch.autograd import Variable
 
@@ -23,6 +23,9 @@ import numpy as np
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
+# add train and test file name
+parser.add_argument('--train', default="training_out", help='training loss and accuracy csv file')
+parser.add_argument('--test', default="testing_out", help='testing loss and accuracy csv file')
 args = parser.parse_args()
 
 use_cuda = torch.cuda.is_available()
@@ -64,7 +67,7 @@ if args.resume:
 else:
     print('==> Building model..')
     # net = VGG('VGG19')
-    net = ResNet20()
+    net = ResNet56()
     # net = PreActResNet18()
     # net = GoogLeNet()
     # net = DenseNet121()
@@ -107,7 +110,7 @@ def train(epoch, writer):
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-        if batch_idx == 391:
+        if batch_idx == 390:
             writer.writerow([train_loss/(batch_idx+1),100.*correct/total])
 
 def test(epoch, writer):
@@ -130,7 +133,7 @@ def test(epoch, writer):
 
         progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
-        if batch_idx == 391:
+        if batch_idx == 99:
             writer.writerow([test_loss/(batch_idx+1),100.*correct/total])
 
     # Save checkpoint.
@@ -148,15 +151,16 @@ def test(epoch, writer):
         best_acc = acc
 
 # save training and testing error for each epoch
-target_epoch = 10
+target_epoch = 164
 
 scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[81, 122], gamma=0.1)
 
 # data saver
 import csv
-train_writer = csv.writer(open("./output/resnet20_train.csv", 'w'))
-test_writer = csv.writer(open("./output/resnet20_test.csv", 'w'))
+train_writer = csv.writer(open("./output/" + args.train + ".csv", 'w'))
+test_writer = csv.writer(open("./output/" + args.test + ".csv", 'w'))
 # train 164 epochs as assignment's requirement    
+
 for epoch in range(start_epoch, start_epoch+target_epoch): 
     train(epoch, train_writer)
     test(epoch, test_writer)

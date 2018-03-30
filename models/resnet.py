@@ -125,8 +125,10 @@ def ResNe110():
 
 
 def test():
-    net = ResNet20()
+    # net = ResNet20()
+    net = ResNet56()
     y = net(Variable(torch.randn(1,3,32,32)))
     print(y.size())
+
 
 test()
