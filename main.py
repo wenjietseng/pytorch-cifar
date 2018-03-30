@@ -13,7 +13,7 @@ import torchvision.transforms as transforms
 import os
 import argparse
 
-from models.resnet import ResNet18
+from models.resnet import ResNet20
 from utils import progress_bar
 from torch.autograd import Variable
 
@@ -64,7 +64,7 @@ if args.resume:
 else:
     print('==> Building model..')
     # net = VGG('VGG19')
-    net = ResNet18()
+    net = ResNet20()
     # net = PreActResNet18()
     # net = GoogLeNet()
     # net = DenseNet121()
