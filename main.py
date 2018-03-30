@@ -107,7 +107,8 @@ def train(epoch, writer):
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-        writer.writerow([train_loss/(batch_idx+1),100.*correct/total])
+        if batch_idx == 391:
+            writer.writerow([train_loss/(batch_idx+1),100.*correct/total])
 
 def test(epoch, writer):
     global best_acc
@@ -129,7 +130,8 @@ def test(epoch, writer):
 
         progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
-        writer.writerow([test_loss/(batch_idx+1),100.*correct/total])
+        if batch_idx == 391:
+            writer.writerow([test_loss/(batch_idx+1),100.*correct/total])
 
     # Save checkpoint.
     acc = 100.*correct/total
