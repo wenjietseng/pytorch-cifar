@@ -169,8 +169,8 @@ scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[81, 122], gamm
 
 # data saver
 import csv
-train_writer = csv.writer(open("./output/" + args.model_name + "train.csv", 'w'))
-test_writer = csv.writer(open("./output/" + args.model_name + "test.csv", 'w'))
+train_writer = csv.writer(open("./output/" + args.model_name + "-train.csv", 'w'))
+test_writer = csv.writer(open("./output/" + args.model_name + "-test.csv", 'w'))
 # train 164 epochs as assignment's requirement    
 
 for epoch in range(start_epoch, start_epoch+target_epoch): 
