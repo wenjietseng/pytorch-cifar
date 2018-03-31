@@ -22,9 +22,9 @@ class BasicBlock(nn.Module):
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
-        for w1, w2 in zip(self.conv1.weight, self.conv2.weight):
-            nn.init.kaiming_normal(w1)
-            nn.init.kaiming_normal(w2)
+        
+        # nn.init.kaiming_normal(self.conv1.weight)
+        # nn.init.kaiming_normal(self.conv2.weight)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion*planes:
@@ -54,11 +54,10 @@ class Bottleneck(nn.Module):
         self.bn3 = nn.BatchNorm2d(self.expansion*planes)
 
         # weight initialization
-        for w1, w2, w3 in zip(self.conv1.weight, self.conv2.weight, self.conv3.weight):
-            nn.init.kaiming_normal(w1)
-            nn.init.kaiming_normal(w2)
-            nn.init.kaiming_normal(w3)
-
+        # nn.init.kaiming_normal(self.conv1.weight)
+        # nn.init.kaiming_normal(self.conv2.weight)
+        # nn.init.kaiming_normal(self.conv3.weight)
+        
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion*planes:
             self.shortcut = nn.Sequential(
@@ -78,21 +77,30 @@ class Bottleneck(nn.Module):
 class ResNet(nn.Module):
     def __init__(self, block, num_blocks, num_classes=10):
         super(ResNet, self).__init__()
-        self.in_planes = 64
+        self.in_planes = 16
 
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(64)
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(16)
         self.layer1 = self._make_layer(block, 16, num_blocks[0], stride=1)
         self.layer2 = self._make_layer(block, 32, num_blocks[1], stride=2)
         self.layer3 = self._make_layer(block, 64, num_blocks[2], stride=2)
-        # self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
+        # self.layer4 = 
+        # elf._make_layer(block, 512, num_blocks[3], stride=2)
         # average pooling
-        # self.avgpool = nn.AvgPool2d(7, stride=1)
+        self.avgpool = nn.AvgPool2d(8)
         self.linear = nn.Linear(64*block.expansion, num_classes)
 
-        for w in self.conv1.weight:
-            nn.init.kaiming_normal(w)
-        nn.init.kaiming_normal(self.linear.weight)
+        # nn.init.kaiming_normal(self.conv1.weight)
+        # nn.init.kaiming_normal(self.linear.weight)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal(m.weight)
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal(m.weight)
+                m.bias.data.zero_()
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
@@ -112,7 +120,8 @@ class ResNet(nn.Module):
         out = self.layer3(out)
         # print(out.size())
         # out = self.layer4(out)
-        out = F.avg_pool2d(out, 8)
+        # out = F.avg_pool2d(out,)
+        out = self.avgpool(out)
         # print(out.size())
         out = out.view(out.size(0), -1)
         # print(out.size())
@@ -147,9 +156,9 @@ def ResNe110():
 
 
 def test():
-    # net = ResNet20()
+    net = ResNet20()
     # net = ResNet56()
-    net = ResNe110()
+    # net = ResNe110()
     y = net(Variable(torch.randn(1,3,32,32)))
     print(y.size())
     # print(net.parameters)

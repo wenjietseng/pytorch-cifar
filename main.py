@@ -97,6 +97,8 @@ if use_cuda:
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
+# learning rate
+scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[81, 122], gamma=0.1)
 
 # Training
 def train(epoch, writer):
@@ -124,6 +126,7 @@ def train(epoch, writer):
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
         if batch_idx == 390:
             writer.writerow([epoch, train_loss/(batch_idx+1),100.*correct/total])
+    scheduler.step()
 
 def test(epoch, writer):
     global best_acc
@@ -147,6 +150,7 @@ def test(epoch, writer):
             % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
         if batch_idx == 99:
             writer.writerow([epoch, test_loss/(batch_idx+1),100.*correct/total])
+    scheduler.step()
 
     # Save checkpoint.
     acc = 100.*correct/total
@@ -164,9 +168,6 @@ def test(epoch, writer):
 
 # save training and testing error for each epoch
 target_epoch = 164
-
-# learning rate
-scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[81, 122], gamma=0.1)
 
 # data saver
 import csv
