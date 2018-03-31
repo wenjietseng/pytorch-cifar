@@ -1,5 +1,5 @@
-'''ResNet in PyTorch.
-
+'''Plain Convolution Neural Network in PyTorch.
+Revised from resnet.py
 For Pre-activation ResNet, see 'preact_resnet.py'.
 
 Reference:
@@ -26,17 +26,17 @@ class BasicBlock(nn.Module):
         # nn.init.kaiming_normal(self.conv1.weight)
         # nn.init.kaiming_normal(self.conv2.weight)
 
-        self.shortcut = nn.Sequential()
-        if stride != 1 or in_planes != self.expansion*planes:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, self.expansion*planes, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(self.expansion*planes)
-            )
+        # self.shortcut = nn.Sequential()
+        # if stride != 1 or in_planes != self.expansion*planes:
+            # self.shortcut = nn.Sequential(
+                # nn.Conv2d(in_planes, self.expansion*planes, kernel_size=1, stride=stride, bias=False),
+                # nn.BatchNorm2d(self.expansion*planes)
+            # )
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
-        out += self.shortcut(x)
+        # out += self.shortcut(x)
         out = F.relu(out)
         return out
 
@@ -58,25 +58,25 @@ class Bottleneck(nn.Module):
         # nn.init.kaiming_normal(self.conv2.weight)
         # nn.init.kaiming_normal(self.conv3.weight)
         
-        self.shortcut = nn.Sequential()
-        if stride != 1 or in_planes != self.expansion*planes:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, self.expansion*planes, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(self.expansion*planes)
-            )
+        # self.shortcut = nn.Sequential()
+        # if stride != 1 or in_planes != self.expansion*planes:
+            # self.shortcut = nn.Sequential(
+                # nn.Conv2d(in_planes, self.expansion*planes, kernel_size=1, stride=stride, bias=False),
+                # nn.BatchNorm2d(self.expansion*planes)
+            # )
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
         out = F.relu(self.bn2(self.conv2(out)))
         out = self.bn3(self.conv3(out))
-        out += self.shortcut(x)
+        # out += self.shortcut(x)
         out = F.relu(out)
         return out
 
 
-class ResNet(nn.Module):
+class PlainCNN(nn.Module):
     def __init__(self, block, num_blocks, num_classes=10):
-        super(ResNet, self).__init__()
+        super(PlainCNN, self).__init__()
         self.in_planes = 16
 
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
@@ -128,41 +128,44 @@ class ResNet(nn.Module):
         # print(out.size())
         return out
 
+def PlainCNN20():
+    return PlainCNN(BasicBlock, [3, 3, 3])
 
-def ResNet18():
-    return ResNet(BasicBlock, [2,2,2,2])
+def PlainCNN56():
+    return PlainCNN(BasicBlock, [9, 9, 9])
 
-def ResNet34():
-    return ResNet(BasicBlock, [3,4,6,3])
+def PlainCNN110():
+    return PlainCNN(BasicBlock, [18, 18, 18])
 
-def ResNet50():
-    return ResNet(Bottleneck, [3,4,6,3])
+# def ResNet18():
+#     return ResNet(BasicBlock, [2,2,2,2])
 
-def ResNet101():
-    return ResNet(Bottleneck, [3,4,23,3])
+# def ResNet34():
+#     return ResNet(BasicBlock, [3,4,6,3])
 
-def ResNet152():
-    return ResNet(Bottleneck, [3,8,36,3])
+# def ResNet50():
+#     return ResNet(Bottleneck, [3,4,6,3])
 
-def ResNet20():
-    return ResNet(BasicBlock, [3, 3, 3])
+# def ResNet101():
+#     return ResNet(Bottleneck, [3,4,23,3])
 
-def ResNet56():
-    return ResNet(Bottleneck, [9, 9, 9])
+# def ResNet152():
+#     return ResNet(Bottleneck, [3,8,36,3])
 
-def ResNe110():
-    return ResNet(Bottleneck, [18, 18, 18])
+# def ResNet20():
+#     return ResNet(BasicBlock, [3, 3, 3])
+
+# def ResNet56():
+#     return ResNet(Bottleneck, [9, 9, 9])
+
+# def ResNe110():
+#     return ResNet(Bottleneck, [18, 18, 18])
 
 
 def test():
-    net = ResNet20()
-    # net = ResNet56()
-    # net = ResNe110()
+    net = PlainCNN20()
+    # net = PlainCNN56()
+    # net = PlainCNN110()
     y = net(Variable(torch.randn(1,3,32,32)))
     print(y.size())
-    # print(net.parameters)
-    # print(net.in_planes)
-    # print(net.layer1)
-    # print(net.layer2)
-    # print(net.layer3)
-# test()
+test()
