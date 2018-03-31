@@ -165,6 +165,7 @@ def test(epoch, writer):
 # save training and testing error for each epoch
 target_epoch = 164
 
+# learning rate
 scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[81, 122], gamma=0.1)
 
 # data saver
