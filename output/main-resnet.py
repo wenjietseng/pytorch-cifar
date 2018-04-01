@@ -86,14 +86,14 @@ else:
     # net = ShuffleNetG2()
     # net = SENet18()
     if args.layer == '20':
-        # net = ResNet20()
-        net = PlainCNN20()
+        net = ResNet20()
+        #net = PlainCNN20()
     elif args.layer == '56':
-        # net = ResNet56()
-        net = PlainCNN56()
+        net = ResNet56()
+        #net = PlainCNN56()
     elif args.layer == '110':
-        # net = ResNe110()
-        net = PlainCNN110()
+        net = ResNe110()
+        #net = PlainCNN110()
     else:
         exit("Check layers args again")
 
@@ -157,7 +157,6 @@ def test(epoch, writer):
             % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
         if batch_idx == 99:
             writer.writerow([epoch, test_loss/(batch_idx+1),100.*correct/total])
-    scheduler.step()
 
     # Save checkpoint.
     acc = 100.*correct/total
